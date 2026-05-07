@@ -39,7 +39,4 @@ build/
 .DS_Store
 
 ### Secrets ###
-src/main/resources/application.properties
-
-### Secrets ###
 src/main/resources/application.yml
