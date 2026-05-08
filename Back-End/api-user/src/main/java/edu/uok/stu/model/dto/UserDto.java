@@ -1,5 +1,6 @@
 package edu.uok.stu.model.dto;
 
+import edu.uok.stu.util.DepartmentCode;
 import edu.uok.stu.util.Gender;
 import edu.uok.stu.util.Role;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,4 +26,9 @@ public class UserDto {
     private String phoneNumber;
     private String address;
     private Role role;
+    private String specialization;
+    private DepartmentCode departmentCode;
+    private List<String> availability;
+    private String roomNumber;
+    private String experience;
 }

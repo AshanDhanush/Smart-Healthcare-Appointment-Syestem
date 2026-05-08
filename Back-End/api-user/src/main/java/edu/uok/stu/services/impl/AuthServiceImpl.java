@@ -8,6 +8,7 @@ import edu.uok.stu.model.entity.User;
 import edu.uok.stu.repository.UserRepository;
 import edu.uok.stu.services.AuthService;
 import edu.uok.stu.services.JWTService;
+import edu.uok.stu.util.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +32,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(RegisterRequest registerRequest) {
-        var user = User.builder()
+        Role userRole = registerRequest.getRole() != null ? registerRequest.getRole() : Role.PATIENT;
+
+        // 2. Build the User Entity
+        var userBuilder = User.builder()
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
                 .email(registerRequest.getEmail())
@@ -39,10 +43,16 @@ public class AuthServiceImpl implements AuthService {
                 .phoneNumber(registerRequest.getPhoneNumber())
                 .gender(registerRequest.getGender())
                 .address(registerRequest.getAddress())
-                .role(registerRequest.getRole())
-                .dateOfBirth(LocalDate.now())
-                .build();
+                .role(userRole)
+                .dateOfBirth(registerRequest.getDateOfBirth() != null ? registerRequest.getDateOfBirth() : LocalDate.now());
 
+        // 3. Conditionally add Doctor attributes
+        if (userRole == Role.DOCTOR) {
+            userBuilder.specialization(registerRequest.getSpecialization());
+            userBuilder.departmentCode(registerRequest.getDepartmentCode());
+        }
+
+        User user = userBuilder.build();
         User savedUser = userRepository.save(user);
 
         // FIX: Add role to claims so Gateway can read it
@@ -99,6 +109,10 @@ public class AuthServiceImpl implements AuthService {
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .role(user.getRole())
+                .departmentCode(user.getDepartmentCode())
+                .specialization(user.getSpecialization())
+                .availability(user.getAvailability())
+                .experience(user.getExperience())
                 .build();
 
 

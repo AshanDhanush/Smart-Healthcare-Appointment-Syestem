@@ -1,5 +1,6 @@
 package edu.uok.stu.model.entity;
 
+import edu.uok.stu.util.DepartmentCode;
 import edu.uok.stu.util.Gender;
 import edu.uok.stu.util.Role;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,12 @@ public class User implements UserDetails {
     private String address;
     private Role role;
     private LocalDate createdDate;
+
+    private String specialization;
+    private DepartmentCode departmentCode;
+    private List<String> availability;
+    private String roomNumber;
+    private String experience;
 
 
 
