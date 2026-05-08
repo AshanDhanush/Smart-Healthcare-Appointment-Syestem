@@ -8,13 +8,13 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logout } = useAuth(); 
+  const { user, logout } = useAuth();
 
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Departments', href: '/departments' },
     { label: 'Doctors', href: '#doctors' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Contact', href: '/contacts' },
   ];
 
   const toggleMenu = () => setIsOpen(!isOpen);

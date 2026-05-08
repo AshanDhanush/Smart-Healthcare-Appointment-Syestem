@@ -116,27 +116,7 @@ export default function DepartmentsPage() {
                   <p className="text-slate-600 leading-relaxed mb-6">
                     {dept.description}
                   </p>
-                  <div className="pt-4 border-t border-slate-100">
-                    <a
-                      href="#"
-                      className="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-                    >
-                      Learn more
-                      <svg
-                        className="ml-2 w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </a>
-                  </div>
+                  
                 </div>
               </motion.div>
             ))}

@@ -81,11 +81,7 @@ export default function Register() {
                         </div>
                     )}
 
-<<<<<<< HEAD
-                    
-=======
                     {/* First Name and Last Name */}
->>>>>>> a152ae2f5bc4ad09727051a093c360dda90b5331
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
@@ -115,11 +111,7 @@ export default function Register() {
                         </div>
                     </div>
 
-<<<<<<< HEAD
-                    
-=======
                     {/* Email */}
->>>>>>> a152ae2f5bc4ad09727051a093c360dda90b5331
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">Email address</label>
                         <input
@@ -134,11 +126,7 @@ export default function Register() {
                         />
                     </div>
 
-<<<<<<< HEAD
-                    
-=======
                     {/* Password */}
->>>>>>> a152ae2f5bc4ad09727051a093c360dda90b5331
                     <div>
                         <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">Password (min 6 characters)</label>
                         <input
@@ -153,11 +141,7 @@ export default function Register() {
                         />
                     </div>
 
-<<<<<<< HEAD
-                    
-=======
                     {/* Date of Birth and Gender */}
->>>>>>> a152ae2f5bc4ad09727051a093c360dda90b5331
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="dateOfBirth" className="block text-sm font-medium text-slate-700 mb-2">Date of Birth</label>
@@ -187,11 +171,7 @@ export default function Register() {
                         </div>
                     </div>
 
-<<<<<<< HEAD
-                    
-=======
                     {/* Phone Number and Address */}
->>>>>>> a152ae2f5bc4ad09727051a093c360dda90b5331
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
