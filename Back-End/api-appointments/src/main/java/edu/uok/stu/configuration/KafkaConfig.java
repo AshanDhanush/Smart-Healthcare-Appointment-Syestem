@@ -25,8 +25,8 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-        // Trusted packages for JSON serialization
-        configProps.put(JsonSerializer.TYPE_MAPPINGS, "appointment:edu.uok.stu.dto.AppointmentEvent");
+        // CORRECTED: Points to the actual location of NotificationEvent
+        configProps.put(JsonSerializer.TYPE_MAPPINGS, "notification:edu.uok.stu.model.dto.NotificationEvent");
 
         return new DefaultKafkaProducerFactory<>(configProps);
     }
