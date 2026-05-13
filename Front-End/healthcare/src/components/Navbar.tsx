@@ -13,7 +13,7 @@ export default function Navbar() {
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Departments', href: '/departments' },
-    { label: 'Doctors', href: '#doctors' },
+    { label: 'Doctors', href: '/doctors' },
     { label: 'Contact', href: '/contacts' },
   ];
 

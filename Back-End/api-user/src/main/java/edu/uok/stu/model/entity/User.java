@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.annotation.Collation;
 import org.springframework.data.mongodb.core.mapping.Document;

@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/auth/**", "/actuator/**").permitAll()
                         .pathMatchers("/api/messages/**").permitAll()
+                        .pathMatchers("/api/auth/admin/**").permitAll()
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt

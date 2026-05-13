@@ -28,16 +28,17 @@ public class ApplicationConfig {
     }
 
     // Authentication provider using DAO and BCrypt
+    // Authentication provider using DAO and BCrypt
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider =
-                new DaoAuthenticationProvider(userDetailsService());
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
+        // Use setters instead of constructor arguments
+        authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
 
         return authProvider;
     }
-
     // Expose AuthenticationManager bean
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
