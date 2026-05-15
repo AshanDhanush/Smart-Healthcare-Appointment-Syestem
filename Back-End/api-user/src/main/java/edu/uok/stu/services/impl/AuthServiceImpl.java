@@ -8,6 +8,7 @@ import edu.uok.stu.model.entity.User;
 import edu.uok.stu.repository.UserRepository;
 import edu.uok.stu.services.AuthService;
 import edu.uok.stu.services.JWTService;
+import edu.uok.stu.util.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -106,6 +109,34 @@ public class AuthServiceImpl implements AuthService {
                 .token(jwtToken)
                 .user(userDto)
                 .build();
+    }
+
+    @Override
+    public List<UserDto> getDoctors() {
+        List<User> doctors = userRepository.findByRole(Role.DOCTOR);
+        List<UserDto> doctorsDto = new ArrayList<>();
+
+        for(User u : doctors){
+            UserDto userDto = new UserDto(
+                    u.getFirstName(),
+                    u.getLastName(),
+                    u.getEmail(),
+                    u.getPassword(),
+                    u.getDateOfBirth(),
+                    u.getGender(),
+                    u.getPhoneNumber(),
+                    u.getAddress(),
+                    u.getRole(),
+                    u.getDepartmentCode(),
+                    u.getSpecialization(),
+                    u.getAvailability(),
+                    u.getRoomNumber(),
+                    u.getExperience()
+
+            );
+            doctorsDto.add(userDto);
+        }
+        return doctorsDto;
     }
 
 }

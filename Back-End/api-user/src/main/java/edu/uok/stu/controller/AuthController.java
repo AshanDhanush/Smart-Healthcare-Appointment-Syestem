@@ -3,15 +3,15 @@ package edu.uok.stu.controller;
 import edu.uok.stu.model.dto.AuthResponse;
 import edu.uok.stu.model.dto.LoginRequest;
 import edu.uok.stu.model.dto.RegisterRequest;
+import edu.uok.stu.model.dto.UserDto;
 import edu.uok.stu.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,4 +30,10 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
+
+    @GetMapping("/get/doctors")
+    public List<UserDto> getDoctors(){
+        return authService.getDoctors();
+    }
+
 }

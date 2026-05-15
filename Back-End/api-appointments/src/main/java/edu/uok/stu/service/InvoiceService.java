@@ -12,7 +12,7 @@ public interface InvoiceService {
             String patientEmail,
             String roomNumber,
             LocalDate date,
-            LocalTime time
+            int number
     );
     byte[] generateInvoicePdf(String html);
 

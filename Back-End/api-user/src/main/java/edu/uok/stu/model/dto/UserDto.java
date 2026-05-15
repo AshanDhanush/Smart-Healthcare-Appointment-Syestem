@@ -23,4 +23,9 @@ public class UserDto {
     private String phoneNumber;
     private String address;
     private Role role;
+    private String departmentCode;
+    private String specialization;
+    private String availability;
+    private String roomNumber;
+    private String experience;
 }

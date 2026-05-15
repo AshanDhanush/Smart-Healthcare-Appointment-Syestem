@@ -12,9 +12,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 
@@ -45,7 +45,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     a.getRoomNumber(),
                     a.getAppointmentFees(),
                     a.getDate(),
-                    a.getTime(),
+                    getAppointmentNumber(a.getDoctorEmail(),a.getDate()),
                     a.getStatus()
             );
             appointmentsDtos.add(appointmentsDto);
@@ -74,7 +74,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     appointmentsDto.getRoomNumber(),
                     appointmentsDto.getAppointmentFees(),
                     appointmentsDto.getDate(),
-                    appointmentsDto.getTime(),
+                    getAppointmentNumber(appointmentsDto.getDoctorEmail(),appointmentsDto.getDate()),
                     Status.PENDING
             );
             appointmentRepo.save(appointments);
@@ -86,7 +86,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     appointments.getPatientEmail(),
                     appointmentsDto.getRoomNumber(),
                     appointmentsDto.getDate(),
-                    appointmentsDto.getTime()
+                    appointments.getAppointmentNumber()
             );
             byte[] pdfBytes = invoiceService.generateInvoicePdf(html);
             String pdfFileName = "Invoice_" + appointmentsDto.getPatientName() + ".pdf";
@@ -106,6 +106,32 @@ public class AppointmentServiceImpl implements AppointmentService {
         }catch(Exception e) {
             throw new RuntimeException("Failed to save order", e);
 
+        }
+    }
+
+    private int getAppointmentNumber(String email, LocalDate date) {
+        List<Appointments> appointments = appointmentRepo.findByDoctorEmailAndDate(email, date);
+
+        if (appointments.isEmpty()) {
+            return 1;
+        }
+        if (appointments.size() < 10) {
+            return appointments.size() + 1;
+        }
+        return 0;
+    }
+
+    public String checkAvailabilty(LocalDate date, String doctorEmail) {
+        List<Appointments> appointments = appointmentRepo.findByDoctorEmailAndDate(doctorEmail, date);
+
+        int totalSlots = 10;
+        int takenSlots = appointments.size();
+        int availableSlots = totalSlots - takenSlots;
+
+        if (availableSlots > 0) {
+            return "Available. Only " + availableSlots + " slots remaining.";
+        } else {
+            return "Fully Booked. No slots available for this date.";
         }
     }
 }

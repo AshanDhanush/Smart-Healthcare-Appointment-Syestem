@@ -5,6 +5,7 @@ import axios from "axios";
 import { User, Calendar, LogOut, Clock, Activity, HeartPulse, LayoutDashboard, Bell, Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import ProtectedRoute from "@/components/auth/ProtectedRouter";
 
 interface Doctors {
     firstName: string;
@@ -268,7 +269,8 @@ export default function AdminDashboardPage() {
     };
 
     return (
-        <div className="flex flex-col md:flex-row bg-slate-700 min-h-screen ">
+        <ProtectedRoute>
+            <div className="flex flex-col md:flex-row bg-slate-700 min-h-screen ">
             <SideNav logout={logout} currentTab={currentTab} setCurrentTab={setCurrentTab} isOpen={mobileMenuOpen} setIsOpen={setMobileMenuOpen} fetchDoctors={fetchDoctors} />
             <main className="flex-1 ">
                 <header className="p-4 flex flex-row items-center border-b border-slate-700 bg-sky-500">
@@ -719,6 +721,8 @@ export default function AdminDashboardPage() {
         
         </div>
 
+        </ProtectedRoute>
+        
 
 
     );

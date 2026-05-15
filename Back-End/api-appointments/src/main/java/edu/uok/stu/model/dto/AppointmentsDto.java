@@ -24,6 +24,6 @@ public class AppointmentsDto {
     String roomNumber;
     double appointmentFees;
     LocalDate date;
-    LocalTime time;
+    int number;
     Status status;
 }
