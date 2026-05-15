@@ -92,7 +92,7 @@ export default function Book() {
 
             setLoadingSlots(true);
             try {
-                const response = await axios.get(`http://localhost:8084/api/appointments/check/availability?date=${selectedDate},doctorEmail=${selectedDoctor?.email}`);
+               const response = await axios.get(`http://localhost:8084/api/appointments/check/availability?date=${selectedDate}&doctorEmail=${selectedDoctor?.email}`);
                 const data = response.data;
                 setAvailableSlots(data);
             } catch (error) {
