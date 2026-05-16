@@ -37,6 +37,14 @@ export default function Login() {
                 router.push("/");
                 console.log("Patient logged in", user.name);
             }
+            else if (user.role === 'DOCTOR') {
+                router.push("/doctor");
+                console.log("Doctor logged in", user.name);
+            }else if (user.role === 'ADMIN') {
+                router.push("/adminDashboard");
+                console.log("Admin logged in", user.name);
+            }
+
         } catch (err) {
             if (isAxiosError(err) && err.response) {
                 setError( "Invalid email or password");
@@ -99,8 +107,9 @@ export default function Login() {
                     </button>
                 </form>
 
-                <div className="mt-6 text-center text-sm text-slate-600">
-                    Don't have an account?{' '}
+                <div className="mt-6 text-center tex t-sm text-slate-600">
+                    Don't have an account?{' '}        
+                    
                     <Link href="/register" className="font-semibold text-cyan-600 hover:text-cyan-700 transition">
                         Create one
                     </Link>

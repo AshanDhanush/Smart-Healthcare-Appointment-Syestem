@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b6cdc05f-7817-4e60-b7a0-4e3c8103b8a4" name="Changes" comment="" />
+    <list default="true" id="b6cdc05f-7817-4e60-b7a0-4e3c8103b8a4" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/api-appointments/src/main/java/edu/uok/stu/controller/AppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-appointments/src/main/java/edu/uok/stu/controller/AppointmentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/edu/uok/stu/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/edu/uok/stu/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/controller/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/controller/AdminController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/dto/RegisterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/dto/RegisterRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/dto/UserDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/services/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/services/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/services/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/services/impl/AuthServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Front-End/healthcare/src/app/adminDashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Front-End/healthcare/src/app/adminDashboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Front-End/healthcare/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Front-End/healthcare/src/app/login/page.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,47 +22,47 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "AshanDhanush"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;AshanDhanush&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/AshanDhanush/Smart-Healthcare-Appointment-Syestem.git",
-    "accountId": "de4db3ff-cfbc-4c20-88bb-9dbe7a0db711"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/AshanDhanush/Smart-Healthcare-Appointment-Syestem.git&quot;,
+    &quot;accountId&quot;: &quot;de4db3ff-cfbc-4c20-88bb-9dbe7a0db711&quot;
   }
-}]]></component>
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="3DM7G3zNxBGjzJDsGRKvuRzYMrr" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "F:/Fullsatck/Smart-Healthcare-Appointment-Syestem/Back-End",
-    "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;F:/Fullsatck/Smart-Healthcare-Appointment-Syestem/Back-End&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -67,6 +79,7 @@
       <option name="presentableId" value="Default" />
       <updated>1778079986067</updated>
       <workItem from="1778079987137" duration="12000" />
+      <workItem from="1778872306233" duration="3000" />
     </task>
     <servers />
   </component>

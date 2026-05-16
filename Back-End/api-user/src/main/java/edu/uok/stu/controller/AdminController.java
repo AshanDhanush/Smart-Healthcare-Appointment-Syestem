@@ -34,6 +34,7 @@ public class AdminController {
     public ResponseEntity<List<UserDto>> getDoctors(){
         return ResponseEntity.ok(adminService.getDoctors());
     }
+
     @DeleteMapping("/delete/doctor/{email}")
     public ResponseEntity<String> deleteDoctor(@PathVariable String email){
         boolean delete = adminService.deleteDoctor(email);

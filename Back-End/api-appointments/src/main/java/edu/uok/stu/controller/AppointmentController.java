@@ -4,15 +4,17 @@ import edu.uok.stu.model.dto.AppointmentsDto;
 import edu.uok.stu.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/appointments")
 @RequiredArgsConstructor
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 
 public class AppointmentController {
 
@@ -29,6 +31,11 @@ public class AppointmentController {
             return ResponseEntity.ok(appointmentService.addAppointments(appointmentsDto));
         }
 
+    @GetMapping("/check/availability")
+    public ResponseEntity<String> checkAvailability(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, @RequestParam("doctorEmail") String doctorEmail){
+        return ResponseEntity.ok(appointmentService.checkAvailabilty(date,doctorEmail));
+
+    }
 
 
 }

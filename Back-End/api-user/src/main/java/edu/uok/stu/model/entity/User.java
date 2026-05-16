@@ -7,13 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.annotation.Collation;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,7 +34,15 @@ public class User implements UserDetails {
     private String phoneNumber;
     private String address;
     private Role role;
+
+    private String departmentCode;
     private LocalDate createdDate;
+    private LocalDateTime createdTime;
+    private String specialization;
+    private String availability;
+    private String roomNumber;
+    private String experience;
+
 
 
 

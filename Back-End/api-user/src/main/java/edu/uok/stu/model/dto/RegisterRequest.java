@@ -34,15 +34,14 @@ public class RegisterRequest {
     private String phoneNumber;
     private String address;
     private Role role;
-<<<<<<< Updated upstream
-=======
+
 
     private String specialization;
-    private DepartmentCode departmentCode;
+    private String departmentCode;
     private String roomNumber;
 
 
 
 
->>>>>>> Stashed changes
+
 }

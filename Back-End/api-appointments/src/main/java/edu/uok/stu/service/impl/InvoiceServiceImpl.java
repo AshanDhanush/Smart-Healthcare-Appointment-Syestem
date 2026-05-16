@@ -14,7 +14,7 @@ import java.time.LocalTime;
 
 public class InvoiceServiceImpl implements InvoiceService {
     @Override
-    public String buildInvoiceHtml(String doctorName, String specialization, double consultationFee, String patientName, String patientEmail, String roomNumber, LocalDate date, LocalTime time) {
+    public String buildInvoiceHtml(String doctorName, String specialization, double consultationFee, String patientName, String patientEmail, String roomNumber, LocalDate date, int number) {
             StringBuilder html = new StringBuilder();
 
             html.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -90,8 +90,8 @@ public class InvoiceServiceImpl implements InvoiceService {
                             <td class="label">Patient Email:</td>
                             <td>""").append(patientEmail).append("""
                             </td>
-                            <td class="label">Time:</td>
-                            <td>""").append(time.toString()).append("""
+                            <td class="label">Appointment Number:</td>
+                            <td>""").append(number).append("""
                             </td>
                         </tr>
                     </table>
