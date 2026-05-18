@@ -1,17 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { User, Calendar, LogOut, Clock, Activity, HeartPulse, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import axios from "axios";
+
+interface Appointment {
+    patientName: string;
+    patientEmail: string;
+    doctorName: string;
+    doctorEmail: string;
+    doctorSpecialization: string;
+    departmentCode: string;
+    roomNumber: string;
+    appointmentFees: number;
+    date: Date;
+    number: number;
+    status: "PENDING" | "COMPLETED" | "CONFIRMED";
+}
 
 const SideNav = ({
     logout, currentTab, setCurrentTab
 }: {
     logout: () => void;
     currentTab: string;
-    setCurrentTab:  React.Dispatch<React.SetStateAction<string>>;
+    setCurrentTab: Dispatch<SetStateAction<string>>;
 }) => (
     <aside className="w-full md:w-72 bg-white border-r border-slate-200 shadow-sm md:min-h-screen flex flex-col z-10">
         <div className="p-6 border-b border-slate-100 flex items-center gap-3 text-blue-600">
@@ -33,7 +48,7 @@ const SideNav = ({
             </button>
 
             <button
-                onClick={() => setCurrentTab("Appointments")}
+               onClick={() => setCurrentTab("Appointments")}
                 className={`w-full px-5 py-3.5 rounded-xl text-left transition-all flex items-center space-x-4 font-semibold ${
                     currentTab === "Appointments" 
                         ? "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100" 
@@ -71,40 +86,111 @@ const SideNav = ({
 
 export default function PatientDashboardPage() {
     const auth = useAuth() || {};
+    const { user, updateUser } = auth;
     const logout = auth.logout || (() => alert("Logout functionality pending."));
 
     const [currentTab, setCurrentTab] = useState("Home");
-    
-    // Mock Data for the smart UI
-    const MOCK_USER = {
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "+94 77 123 4567",
-        dob: "1990-05-15",
-        bloodGroup: "O+",
-        address: "123 Main St, Colombo 03, Sri Lanka"
+    const [loading , setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [cancle,setCancle] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [profileForm, setProfileForm] = useState({
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
+        phoneNumber: user?.phoneNumber || "",
+        address: user?.address || "",
+        dateOfBirth: user?.dateOfBirth || "",
+        gender: user?.gender || "",
+    });
+    const [formError, setFormError] = useState<string | null>(null);
+    const [formStatus, setFormStatus] = useState<string | null>(null);
+
+    useEffect(() => {
+    // If the user's email isn't loaded yet, do not trigger the API call
+    if (!user?.email) return;
+
+    const fetchAppointments = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(
+                `http://localhost:8080/api/appointments/get/patient?patientEmail=${encodeURIComponent(user.email)}`,
+                { withCredentials: true }
+            );
+            setAppointments(response.data);
+        } catch (err) {
+            setError("Failed to load appointments. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const MOCK_APPOINTMENTS = [
-        {
-            id: "APT-001",
-            doctorName: "Dr. Aruni Perera",
-            specialization: "Cardiology",
-            date: "2026-05-15",
-            time: "10:00 AM",
-            status: "Upcoming",
-            room: "A-201"
-        },
-        {
-            id: "APT-002",
-            doctorName: "Dr. Sunil Perera",
-            specialization: "Surgery",
-            date: "2026-04-20",
-            time: "02:30 PM",
-            status: "Completed",
-            room: "D-101"
+    fetchAppointments();
+}, [user?.email, cancle]);
+
+    useEffect(() => {
+        setProfileForm({
+            firstName: user?.firstName || "",
+            lastName: user?.lastName || "",
+            phoneNumber: user?.phoneNumber || "",
+            address: user?.address || "",
+            dateOfBirth: user?.dateOfBirth || "",
+            gender: user?.gender || "",
+        
+        });
+    }, [user]);
+
+    const handleEditInput = (field: string, value: string) => {
+        setProfileForm((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const deleteAppointment = async (appointmentNumber: number , date: Date) => {
+        setLoading(true);
+        setError(null);
+        try {
+           await axios.delete(
+    `http://localhost:8080/api/appointments/delete?appointmentNumber=${appointmentNumber}&date=${date.toISOString().split('T')[0]}`,
+    { withCredentials: true }
+);
+            setError(null);
+            setCancle(prev => !prev); // Trigger refetch after successful deletion
+
+        } catch (err) {
+            setError("Failed to cancel appointment. Please try again later.");
+        } finally {
+            setLoading(false);
         }
-    ];
+    }
+
+    const editProfile = async () => {
+        setFormError(null);
+        setFormStatus(null);
+        setLoading(true);
+
+        try {
+            const response = await axios.put(`http://localhost:8080/api/auth/update/profile?email=${user?.email}`, {
+                firstName: profileForm.firstName,
+                lastName: profileForm.lastName,
+                dateOfBirth: profileForm.dateOfBirth || null,
+                gender: profileForm.gender || null,
+                phoneNumber: profileForm.phoneNumber,
+                address: profileForm.address || null,
+            }); 
+            
+            const updatedUser = { ...user, ...profileForm };
+            if (typeof updateUser === "function") {
+                updateUser(updatedUser);
+            }
+
+            setFormStatus('Profile updated successfully.');
+            setProfileForm((prev) => ({ ...prev, ...updatedUser }));
+            setIsEditingProfile(false);
+        } catch (err) {
+            setFormError('Profile update failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    }   
 
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
@@ -112,7 +198,7 @@ export default function PatientDashboardPage() {
             <div className="flex flex-col md:flex-row flex-1 pt-24 md:pt-28">
                 <SideNav logout={logout} currentTab={currentTab} setCurrentTab={setCurrentTab} />
                 
-                <main className="flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50/30">
+                <main className={`flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50/30 transition-opacity ${isEditingProfile ? 'opacity-40' : 'opacity-100'}`}>
                 {/* Header */}
                 <header className="mb-10 flex items-center justify-between">
                     <div>
@@ -129,7 +215,7 @@ export default function PatientDashboardPage() {
                     </div>
                     
                     <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-xl shadow-sm border border-blue-200">
-                        {MOCK_USER.name.charAt(0)}
+                        {user?.firstName?.charAt(0) ?? ""}
                     </div>
                 </header>
 
@@ -142,7 +228,7 @@ export default function PatientDashboardPage() {
                             </div>
                             <div>
                                 <p className="text-sm font-bold text-slate-400 uppercase">Upcoming</p>
-                                <p className="text-2xl font-extrabold text-slate-800">1 Appointment</p>
+                                <p className="text-2xl font-extrabold text-slate-800">{appointments.filter((apt) => apt.status === "PENDING").length}</p>
                             </div>
                         </div>
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
@@ -165,18 +251,20 @@ export default function PatientDashboardPage() {
                         </h2>
                         
                         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                            {MOCK_APPOINTMENTS.map((apt) => (
-                                <div key={apt.id} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-                                    <div className={`absolute top-0 left-0 w-1.5 h-full transition-colors ${apt.status === "Upcoming" ? "bg-blue-500 group-hover:bg-blue-600" : "bg-emerald-500 group-hover:bg-emerald-600"}`} />
+                            {appointments.map((apt) => (
+                                <div key={apt.number} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+                                    <div className={`absolute top-0 left-0 w-1.5 h-full transition-colors ${apt.status === "PENDING" ? "bg-blue-500 group-hover:bg-blue-600" : "bg-emerald-500 group-hover:bg-emerald-600"}`} />
                                     
                                     <div className="flex justify-between items-start mb-5 pl-2">
                                         <div>
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{apt.id}</p>
+                                            <p className="inline-block bg-blue-100 text-blue-800 text-xs font-extrabold px-3 py-1 rounded-md mb-2 shadow-sm border border-blue-200">
+                                                Appointment #{apt.number}
+                                            </p>
                                             <h3 className="text-xl font-extrabold text-slate-800">{apt.doctorName}</h3>
-                                            <p className="text-blue-600 font-semibold text-sm">{apt.specialization}</p>
+                                            <p className="text-blue-600 font-semibold text-sm">{apt.doctorSpecialization}</p>
                                         </div>
                                         <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-sm border ${
-                                            apt.status === "Upcoming" ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                            apt.status === "PENDING" ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-emerald-50 text-emerald-700 border-emerald-100"
                                         }`}>
                                             {apt.status}
                                         </span>
@@ -185,22 +273,27 @@ export default function PatientDashboardPage() {
                                     <div className="space-y-3 mt-6 bg-slate-50 p-5 rounded-xl text-sm font-medium text-slate-600 ml-2">
                                         <div className="flex items-center gap-3">
                                             <Calendar className="w-4 h-4 text-blue-500" />
-                                            <span>{apt.date}</span>
+                                            <span>{new Date(apt.date).toLocaleDateString()}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <Clock className="w-4 h-4 text-indigo-500" />
-                                            <span>{apt.time}</span>
+                                            <span>Token No: {apt.number}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <Activity className="w-4 h-4 text-rose-500" />
-                                            <span>Room {apt.room}</span>
+                                            <span>Room {apt.roomNumber}</span>
                                         </div>
                                     </div>
 
-                                    {apt.status === "Upcoming" && (
+                                    {apt.status === "PENDING" && (
                                         <div className="mt-6 flex gap-3 ml-2">
-                                            <button className="flex-1 bg-white border-2 border-slate-200 text-slate-700 py-2.5 rounded-xl font-bold hover:border-slate-300 hover:bg-slate-50 transition-colors shadow-sm">Reschedule</button>
-                                            <button className="flex-1 bg-rose-50 border-2 border-transparent text-rose-600 py-2.5 rounded-xl font-bold hover:bg-rose-100 transition-colors">Cancel</button>
+                                            <button className="flex-1 bg-rose-50 border-2 border-transparent text-rose-600 py-2.5 rounded-xl font-bold hover:bg-rose-100 transition-colors"
+                                                onClick={() => {
+                                                    deleteAppointment(apt.number, new Date(apt.date));
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
                                         </div>
                                     )}
                                 </div>
@@ -215,13 +308,13 @@ export default function PatientDashboardPage() {
                         
                         <div className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-10 pb-10 border-b border-slate-100 relative z-10">
                             <div className="w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-5xl shadow-inner border-4 border-white ring-4 ring-slate-50">
-                                {MOCK_USER.name.charAt(0)}
+                                {user?.firstName?.charAt(0) ?? ""}
                             </div>
                             <div>
-                                <h2 className="text-3xl font-extrabold text-slate-800 mb-2">{MOCK_USER.name}</h2>
+                                <h2 className="text-3xl font-extrabold text-slate-800 mb-2">{user?.firstName} {user?.lastName}</h2>
                                 <p className="text-slate-500 font-semibold text-lg flex items-center gap-2">
                                     <User className="w-5 h-5 text-slate-400" />
-                                    {MOCK_USER.email}
+                                    {user?.email}
                                 </p>
                             </div>
                         </div>
@@ -229,27 +322,30 @@ export default function PatientDashboardPage() {
                         <div className="grid md:grid-cols-2 gap-8 relative z-10">
                             <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Contact Number</p>
-                                <p className="text-lg font-semibold text-slate-800">{MOCK_USER.phone}</p>
+                                <p className="text-lg font-semibold text-slate-800">{user?.phoneNumber}</p>
                             </div>
                             <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Date of Birth</p>
-                                <p className="text-lg font-semibold text-slate-800">{MOCK_USER.dob}</p>
-                            </div>
-                            <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Blood Group</p>
-                                <p className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                                    <HeartPulse className="w-6 h-6 text-rose-500" />
-                                    {MOCK_USER.bloodGroup}
-                                </p>
+                                <p className="text-lg font-semibold text-slate-800">{user?.dateOfBirth}</p>
                             </div>
                             <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Address</p>
-                                <p className="text-lg font-semibold text-slate-800">{MOCK_USER.address}</p>
+                                <p className="text-lg font-semibold text-slate-800">{user?.address}</p>
+                            </div>
+                            <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gender</p>
+                                <p className="text-lg font-semibold text-slate-800">{user?.gender}</p>
                             </div>
                         </div>
 
                         <div className="mt-10 pt-8 border-t border-slate-100 flex justify-end relative z-10">
-                            <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/30 active:scale-95">
+                            <button className="bg-gradient-to-r from-cyan-500 to-sky-400 border-2 border-blue-700 text-slate-700 py-3.5 px-8 rounded-xl font-bold hover:border-slate-900 hover:bg-gradient-to-r from-cyan-500 to-sky-600 transition-colors shadow-sm mr-4">
+                                Change Password
+                            </button>
+                            <button
+                                onClick={() => setIsEditingProfile(true)}
+                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/30 active:scale-95"
+                            >
                                 Edit Profile
                             </button>
                         </div>
@@ -257,7 +353,100 @@ export default function PatientDashboardPage() {
                 )}
             </main>
         </div>
-        </div>
-       
+        {isEditingProfile && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+                <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+                    <div className="flex items-center justify-between p-6 border-b border-slate-200">
+                        <div>
+                            <h2 className="text-2xl font-bold text-slate-900">Edit Profile</h2>
+                            <p className="text-sm text-slate-500">Update your personal details below.</p>
+                        </div>
+                        <button
+                            onClick={() => setIsEditingProfile(false)}
+                            className="text-slate-400 hover:text-slate-700 transition-colors"
+                        >
+                            Close
+                        </button>
+                    </div>
+                    <div className="p-6 space-y-6">
+                        {formError && <div className="rounded-xl bg-rose-50 border border-rose-100 p-4 text-rose-700">{formError}</div>}
+                        {formStatus && <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-4 text-emerald-700">{formStatus}</div>}
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <label className="space-y-2 text-sm text-slate-700">
+                                <span>First Name</span>
+                                <input
+                                    value={profileForm.firstName}
+                                    onChange={(e) => handleEditInput('firstName', e.target.value)}
+                                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                />
+                            </label>
+                            <label className="space-y-2 text-sm text-slate-700">
+                                <span>Last Name</span>
+                                <input
+                                    value={profileForm.lastName}
+                                    onChange={(e) => handleEditInput('lastName', e.target.value)}
+                                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                />
+                            </label>
+                        </div>
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <label className="space-y-2 text-sm text-slate-700">
+                                <span>Phone Number</span>
+                                <input
+                                    value={profileForm.phoneNumber}
+                                    onChange={(e) => handleEditInput('phoneNumber', e.target.value)}
+                                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                />
+                            </label>
+                            <label className="space-y-2 text-sm text-slate-700">
+                                <span>Date of Birth</span>
+                                <input
+                                    type="date"
+                                    value={profileForm.dateOfBirth}
+                                    onChange={(e) => handleEditInput('dateOfBirth', e.target.value)}
+                                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                />
+                            </label>
+                            <label className="space-y-2 text-sm text-slate-700">
+                                <span>Gender</span>
+                                <select
+                                    value={profileForm.gender}
+                                    onChange={(e) => handleEditInput('gender', e.target.value)}
+                                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                >
+                                    <option value="">Select gender</option>
+                                    <option value="MALE">Male</option>
+                                    <option value="FEMALE">Female</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </label>
+                        </div>
+                        <label className="space-y-2 text-sm text-slate-700">
+                            <span>Address</span>
+                            <textarea
+                                value={profileForm.address}
+                                onChange={(e) => handleEditInput('address', e.target.value)}
+                                className="w-full min-h-[120px] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            />
+                        </label>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                            <button
+                                onClick={() => setIsEditingProfile(false)}
+                                className="w-full sm:w-auto rounded-2xl border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 hover:bg-slate-50 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={editProfile}
+                                className="w-full sm:w-auto rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 transition"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+    </div>
     );
 }

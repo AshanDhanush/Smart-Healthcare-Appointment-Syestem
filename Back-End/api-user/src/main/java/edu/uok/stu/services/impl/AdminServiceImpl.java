@@ -24,11 +24,9 @@ public class AdminServiceImpl implements AdminService {
     public Map<String, Object> getStats() {
         int patientsAmount = userRepository.countByRole(Role.PATIENT);
         int doctorsAmount = userRepository.countByRole(Role.DOCTOR);
-        int appointmentAmount = 0;
         Map<String , Object> stats = new HashMap<>();
         stats.put("patients" ,  patientsAmount);
         stats.put("doctors" , doctorsAmount);
-        stats.put("appointments" , appointmentAmount);
         return stats;
     }
 
@@ -50,6 +48,7 @@ public class AdminServiceImpl implements AdminService {
                     .departmentCode(u.getDepartmentCode())
                     .specialization(u.getSpecialization())
                     .availability(u.getAvailability())
+                    .roomNumber(u.getRoomNumber())
                     .experience(u.getExperience())
                     .build();
             doctorDtos.add(userDto);
@@ -59,8 +58,37 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean deleteDoctor(String email) {
+    public boolean deleteUser(String email) {
         long deleteCount = userRepository.deleteByEmail(email);
         return deleteCount > 0;
     }
+
+    @Override
+    public List<UserDto> getPatients() {
+        List<User> patientsEntities = userRepository.findByRole(Role.PATIENT);
+        List<UserDto> patientDtos = new ArrayList<>();
+
+        for(User u : patientsEntities){
+            var userDto = UserDto.builder()
+                    .firstName(u.getFirstName())
+                    .lastName(u.getLastName())
+                    .email(u.getEmail())
+                    .gender(u.getGender())
+                    .dateOfBirth(u.getDateOfBirth())
+                    .phoneNumber(u.getPhoneNumber())
+                    .address(u.getAddress())
+                    .role(u.getRole())
+                    .departmentCode(u.getDepartmentCode())
+                    .specialization(u.getSpecialization())
+                    .availability(u.getAvailability())
+                    .roomNumber(u.getRoomNumber())
+                    .experience(u.getExperience())
+                    .build();
+            patientDtos.add(userDto);
+
+        }
+        return patientDtos;
+    }
+
+
 }

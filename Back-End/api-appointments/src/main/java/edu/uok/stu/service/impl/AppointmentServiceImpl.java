@@ -1,6 +1,7 @@
 package edu.uok.stu.service.impl;
 
 import edu.uok.stu.model.dto.AppointmentsDto;
+import edu.uok.stu.model.dto.AppointmentsTrendDto;
 import edu.uok.stu.model.dto.NotificationEvent;
 import edu.uok.stu.model.entity.Appointments;
 import edu.uok.stu.repository.AppointmentRepo;
@@ -59,6 +60,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public boolean addAppointments(AppointmentsDto appointmentsDto) {
         if (appointmentsDto == null) {
+            return false;
+        }
+        List<Appointments> appointmentsEntity = appointmentRepo.findByDoctorEmailAndDate(appointmentsDto.getDoctorEmail(),appointmentsDto.getDate());
+
+        int totalSlots = 10;
+        int takenSlots = appointmentsEntity.size();
+        int availableSlots = totalSlots - takenSlots;
+
+        if(availableSlots==0){
             return false;
         }
 
@@ -133,5 +143,48 @@ public class AppointmentServiceImpl implements AppointmentService {
         } else {
             return "Fully Booked. No slots available for this date.";
         }
+    }
+
+    @Override
+    public List<AppointmentsDto> getPatientAppointments(String patientEmail) {
+        List<Appointments> appointments = appointmentRepo.findByPatientEmail(patientEmail);
+        List<AppointmentsDto> appointmentsDtos = new ArrayList<>();
+
+        for(Appointments a : appointments){
+            AppointmentsDto appointmentsDto = new AppointmentsDto(
+                    a.getPatientName(),
+                    a.getPatientEmail(),
+                    a.getDoctorName(),
+                    a.getDoctorEmail(),
+                    a.getDoctorSpecialization(),
+                    a.getDepartmentCode(),
+                    a.getRoomNumber(),
+                    a.getAppointmentFees(),
+                    a.getDate(),
+                    a.getAppointmentNumber(),
+                    a.getStatus()
+            );
+            appointmentsDtos.add(appointmentsDto);
+        }
+        return appointmentsDtos;
+    }
+
+    @Override
+    public boolean deleteAppointment(int appointmentNumber, LocalDate date) {
+        if(appointmentNumber == 0 || date == null){
+            return false;
+        }
+        long deleteCount = appointmentRepo.deleteByAppointmentNumberAndDate(appointmentNumber,date);
+        return deleteCount > 0;
+    }
+
+    @Override
+    public int getAppointmensAmmunt() {
+        return appointmentRepo.findAll().size();
+    }
+
+    @Override
+    public List<AppointmentsTrendDto> getAppointmentVolumeTrends() {
+        return appointmentRepo.getAppointmentVolumeTrends();
     }
 }

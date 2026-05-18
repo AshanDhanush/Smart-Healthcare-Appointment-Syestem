@@ -1,9 +1,6 @@
 package edu.uok.stu.services.impl;
 
-import edu.uok.stu.model.dto.AuthResponse;
-import edu.uok.stu.model.dto.LoginRequest;
-import edu.uok.stu.model.dto.RegisterRequest;
-import edu.uok.stu.model.dto.UserDto;
+import edu.uok.stu.model.dto.*;
 import edu.uok.stu.model.entity.User;
 import edu.uok.stu.repository.UserRepository;
 import edu.uok.stu.services.AuthService;
@@ -44,11 +41,18 @@ public class AuthServiceImpl implements AuthService {
                 .address(registerRequest.getAddress())
                 .role(registerRequest.getRole())
                 .dateOfBirth(LocalDate.now())
+
+                // FIX: Map Doctor specific fields here so they save to MongoDB!
+                .specialization(registerRequest.getSpecialization())
+                .departmentCode(registerRequest.getDepartmentCode())
+                .roomNumber(registerRequest.getRoomNumber())
+                .experience(registerRequest.getExperience())
+                .availability(registerRequest.getAvailability())
                 .build();
 
         User savedUser = userRepository.save(user);
 
-        // FIX: Add role to claims so Gateway can read it
+
         Map<String, Object> extraClaims = new HashMap<>();
         if (savedUser.getRole() != null) {
             extraClaims.put("role", savedUser.getRole().name());
@@ -65,6 +69,12 @@ public class AuthServiceImpl implements AuthService {
                 .phoneNumber(savedUser.getPhoneNumber())
                 .address(savedUser.getAddress())
                 .role(savedUser.getRole())
+                // FIX: Ensure the returned response object also includes doctor fields
+                .specialization(savedUser.getSpecialization())
+                .departmentCode(savedUser.getDepartmentCode())
+                .roomNumber(savedUser.getRoomNumber())
+                .experience(savedUser.getExperience())
+                .availability(savedUser.getAvailability())
                 .build();
 
         return AuthResponse.builder()
@@ -72,7 +82,6 @@ public class AuthServiceImpl implements AuthService {
                 .user(userDto)
                 .build();
     }
-
     @Override
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
@@ -113,30 +122,74 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public List<UserDto> getDoctors() {
-        List<User> doctors = userRepository.findByRole(Role.DOCTOR);
-        List<UserDto> doctorsDto = new ArrayList<>();
-
-        for(User u : doctors){
-            UserDto userDto = new UserDto(
-                    u.getFirstName(),
-                    u.getLastName(),
-                    u.getEmail(),
-                    u.getPassword(),
-                    u.getDateOfBirth(),
-                    u.getGender(),
-                    u.getPhoneNumber(),
-                    u.getAddress(),
-                    u.getRole(),
-                    u.getDepartmentCode(),
-                    u.getSpecialization(),
-                    u.getAvailability(),
-                    u.getRoomNumber(),
-                    u.getExperience()
-
-            );
-            doctorsDto.add(userDto);
-        }
-        return doctorsDto;
+        return userRepository.findByRole(Role.DOCTOR).stream()
+                .map(u -> UserDto.builder()
+                        .firstName(u.getFirstName())
+                        .lastName(u.getLastName())
+                        .email(u.getEmail())
+                        .dateOfBirth(u.getDateOfBirth())
+                        .gender(u.getGender())
+                        .phoneNumber(u.getPhoneNumber())
+                        .address(u.getAddress())
+                        .role(u.getRole())
+                        .departmentCode(u.getDepartmentCode())
+                        .specialization(u.getSpecialization())
+                        .availability(u.getAvailability())
+                        .roomNumber(u.getRoomNumber())
+                        .experience(u.getExperience())
+                        .build())
+                .toList();
     }
+
+    @Override
+    public boolean updateProfile(String email, UpdateProfile updateProfile) {
+        var userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (updateProfile.getFirstName() != null && !updateProfile.getFirstName().isBlank()) {
+                user.setFirstName(updateProfile.getFirstName());
+            }
+            if (updateProfile.getLastName() != null && !updateProfile.getLastName().isBlank()) {
+                user.setLastName(updateProfile.getLastName());
+            }
+            if (updateProfile.getPhoneNumber() != null && !updateProfile.getPhoneNumber().isBlank()) {
+                user.setPhoneNumber(updateProfile.getPhoneNumber());
+            }
+            if (updateProfile.getAddress() != null && !updateProfile.getAddress().isBlank()) {
+                user.setAddress(updateProfile.getAddress());
+            }
+            if (updateProfile.getGender() != null) {
+                user.setGender(updateProfile.getGender());
+            }
+            if (updateProfile.getDateOfBirth() != null) {
+                user.setDateOfBirth(updateProfile.getDateOfBirth());
+            }
+            if (user.getRole() == edu.uok.stu.util.Role.DOCTOR) {
+                if (updateProfile.getSpecialization() != null && !updateProfile.getSpecialization().isBlank()) {
+                    user.setSpecialization(updateProfile.getSpecialization());
+                }
+                if (updateProfile.getDepartmentCode() != null && !updateProfile.getDepartmentCode().isBlank()) {
+                    user.setDepartmentCode(updateProfile.getDepartmentCode());
+                }
+                if (updateProfile.getRoomNumber() != null && !updateProfile.getRoomNumber().isBlank()) {
+                    user.setRoomNumber(updateProfile.getRoomNumber());
+                }
+                if (updateProfile.getAvailability() != null && !updateProfile.getAvailability().isBlank()) {
+                    user.setAvailability(updateProfile.getAvailability());
+                }
+                if (updateProfile.getExperience() != null && !updateProfile.getExperience().isBlank()) {
+                    user.setExperience(updateProfile.getExperience());
+                }
+            }
+
+
+            userRepository.save(user);
+            return true;
+        }
+
+        return false;
+    }
+
 
 }

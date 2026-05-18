@@ -1,6 +1,7 @@
 package edu.uok.stu.controller;
 
 import edu.uok.stu.model.dto.AppointmentsDto;
+import edu.uok.stu.model.dto.AppointmentsTrendDto;
 import edu.uok.stu.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/appointments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+
 
 public class AppointmentController {
 
@@ -36,6 +37,27 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.checkAvailabilty(date,doctorEmail));
 
     }
+
+    @GetMapping("/get/patient")
+    public List<AppointmentsDto> getPatientAppointments(@RequestParam("patientEmail") String patientEmail){
+        return appointmentService.getPatientAppointments(patientEmail);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?>  deleteAppointment(@RequestParam("appointmentNumber") int appointmentNumber , @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
+        return ResponseEntity.ok(appointmentService.deleteAppointment(appointmentNumber,date));
+    }
+
+    @GetMapping("/get/appointment/amount")
+    public int getAppointmentsAmount(){
+        return appointmentService.getAppointmensAmmunt();
+    }
+
+    @GetMapping("/admin/analytics/trends")
+    public ResponseEntity<List<AppointmentsTrendDto>> getVolumeTrends() {
+        return ResponseEntity.ok(appointmentService.getAppointmentVolumeTrends());
+    }
+
 
 
 }

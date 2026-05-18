@@ -1,9 +1,6 @@
 package edu.uok.stu.services;
 
-import edu.uok.stu.model.dto.AuthResponse;
-import edu.uok.stu.model.dto.LoginRequest;
-import edu.uok.stu.model.dto.RegisterRequest;
-import edu.uok.stu.model.dto.UserDto;
+import edu.uok.stu.model.dto.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -14,4 +11,6 @@ public interface AuthService {
     AuthResponse login(LoginRequest request);
 
     List<UserDto> getDoctors();
+
+    boolean updateProfile(String email, UpdateProfile updateProfile);
 }

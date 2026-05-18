@@ -12,5 +12,9 @@ public interface AdminService {
 
     List<UserDto> getDoctors();
 
-    boolean deleteDoctor(String email);
+    boolean deleteUser(String email);
+
+    List<UserDto> getPatients();
+
+
 }

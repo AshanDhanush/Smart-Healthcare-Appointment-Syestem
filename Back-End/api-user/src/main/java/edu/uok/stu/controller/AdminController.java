@@ -1,6 +1,7 @@
 package edu.uok.stu.controller;
 
 
+import edu.uok.stu.model.dto.UpdateProfile;
 import edu.uok.stu.model.dto.UserDto;
 import edu.uok.stu.services.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -35,15 +36,26 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getDoctors());
     }
 
-    @DeleteMapping("/delete/doctor/{email}")
-    public ResponseEntity<String> deleteDoctor(@PathVariable String email){
-        boolean delete = adminService.deleteDoctor(email);
+    @DeleteMapping("/delete/user/{email}")
+    public ResponseEntity<String> deleteUser(@PathVariable String email){
+        boolean delete = adminService.deleteUser(email);
         if(delete){
-            return ResponseEntity.ok("Doctor with email " + email + " deleted successfully");
+            return ResponseEntity.ok("User with email " + email + " deleted successfully");
         }
         else {
-            return  ResponseEntity.ok("Doctor with email " + email + " deleted unsuccessfully");
+            return  ResponseEntity.ok("User with email " + email + " deleted unsuccessfully");
         }
 
     }
+
+    @GetMapping("/get/patients")
+    public ResponseEntity<List<UserDto>> getPatients(){ return ResponseEntity.ok(adminService.getPatients());}
+
+
+
+
+
+
+
+
 }

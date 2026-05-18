@@ -1,9 +1,6 @@
 package edu.uok.stu.controller;
 
-import edu.uok.stu.model.dto.AuthResponse;
-import edu.uok.stu.model.dto.LoginRequest;
-import edu.uok.stu.model.dto.RegisterRequest;
-import edu.uok.stu.model.dto.UserDto;
+import edu.uok.stu.model.dto.*;
 import edu.uok.stu.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +31,11 @@ public class AuthController {
     @GetMapping("/get/doctors")
     public List<UserDto> getDoctors(){
         return authService.getDoctors();
+    }
+
+    @PutMapping("/update/profile")
+    public boolean updateProfile(@RequestParam("email") String email, @RequestBody UpdateProfile updateProfile){
+        return authService.updateProfile(email,updateProfile);
     }
 
 }

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,11 +15,15 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import reactor.core.publisher.Mono;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -31,12 +36,14 @@ public class SecurityConfig {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
+                // FIX: Use Customizer.withDefaults() or the standard lambda to auto-wire the CorsConfigurationSource bean below
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/api/auth/**", "/actuator/**").permitAll()
-                        .pathMatchers("/api/messages/**").permitAll()
-                        .pathMatchers("/api/auth/admin/**").permitAll()
-                        .pathMatchers("/api/auth/appointments/**").permitAll()
+                        // 1. Explicit Public Routes (Auth endpoints and Chat Messaging)
+                        .pathMatchers("/api/auth/register", "/api/auth/login", "/api/auth/get/doctors","api/auth/update/profile").permitAll()
+                        .pathMatchers("/api/messages/**", "/actuator/**").permitAll()
+                        .pathMatchers("/api/appointments/**").permitAll()
+                        .pathMatchers("/api/auth/admin/**").hasRole("ADMIN")
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
@@ -47,15 +54,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public org.springframework.web.cors.reactive.CorsConfigurationSource corsConfigurationSource() {
-        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-        configuration.setAllowedOrigins(java.util.List.of("http://localhost:5173", "http://localhost:3000")); // Allow
-        // frontend
-        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(java.util.List.of("*"));
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
-        org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
@@ -67,7 +74,6 @@ public class SecurityConfig {
         return NimbusReactiveJwtDecoder.withSecretKey(secretKeySpec).build();
     }
 
-
     @Bean
     public Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -76,8 +82,10 @@ public class SecurityConfig {
             if (role == null) {
                 return Collections.emptyList();
             }
+            // Spring's .hasRole() helper prepends "ROLE_" to the string automatically
             return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
         });
         return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
     }
+
 }

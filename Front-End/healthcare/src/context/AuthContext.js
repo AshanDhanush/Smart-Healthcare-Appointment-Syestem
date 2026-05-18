@@ -52,8 +52,13 @@ export const AuthProvider = ({ children }) => {
         router.push("/login");
     };
 
+    const updateUser = (userData) => {
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
+    };
+
     const value = useMemo(() => ({
-        user, token, login, logout, loading
+        user, token, login, logout, updateUser, loading
     }), [user, token, loading]);
 
     return (

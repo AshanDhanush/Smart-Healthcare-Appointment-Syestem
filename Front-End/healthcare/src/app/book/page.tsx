@@ -1,10 +1,13 @@
 "use client"
 
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { Check, User , ChevronLeft, ChevronRight, Calendar} from 'lucide-react';
-import { motion} from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
+import ProtectedRoute from '@/components/auth/ProtectedRouter';
+import { select } from 'framer-motion/client';
 
 interface Doctors {
     firstName: string;
@@ -17,7 +20,7 @@ interface Doctors {
     address: string;
     role: Role;
     specialization: string;
-    departmentCode: DepartmentCode;
+    departmentCode: string;
     availability: string[];
     roomNumber: string;
     experience: string;
@@ -34,13 +37,7 @@ enum Gender {
     FEMALE = "FEMALE",
     OTHER = "OTHER"
 }
-enum DepartmentCode {
-    CARD = "CARD",
-    NEUR = "NEUR",
-    PEDS = "PEDS",
-    ORTH = "ORTH",
-    SURG = "SURG"
-}
+
 
 
 export default function Book() {
@@ -48,12 +45,14 @@ export default function Book() {
     const [selectedDoctor, setSelectedDoctor] = useState<Doctors | null>(null);
     const [doctors, setDoctors] = useState<Doctors[]>([]);
     const [error , setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [submitting, setSubmitting] = useState<boolean>(false);
     const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
     const [selectedSpecialization, setSelectedSpecialization] = useState<string>('');
     const [selectedDate, setSelectedDate] = useState<string>('');
-    const [appointmentNumber, setAppointmentNumber] = useState<number>(0);
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+    const { user } = useAuth();
     
 
     const calculateAppointmentPrice = (specialization: string, experience: string | number): number => {
@@ -92,7 +91,7 @@ export default function Book() {
 
             setLoadingSlots(true);
             try {
-               const response = await axios.get(`http://localhost:8084/api/appointments/check/availability?date=${selectedDate}&doctorEmail=${selectedDoctor?.email}`);
+               const response = await axios.get(`http://localhost:8080/api/appointments/check/availability?date=${selectedDate}&doctorEmail=${selectedDoctor?.email}`,{ withCredentials: true });
                 const data = response.data;
                 setAvailableSlots(data);
             } catch (error) {
@@ -125,58 +124,104 @@ export default function Book() {
     }, []);
 
     const handleSubmit = async () => {
-        // Handle appointment booking submission
-        console.log('Booking appointment:', {
-            doctor: selectedDoctor,
+        if (!selectedDoctor || !selectedDate) {
+            setError('Please select a doctor and date before confirming your booking.');
+            return;
+        }
+
+        setError(null);
+        setSuccessMessage(null);
+        setSubmitting(true);
+
+        const bookingDetails = {
+            patientName: user ? `${user.firstName} ${user.lastName}` : 'Guest User',
+            patientEmail: user?.email || null,
+            doctorName: `${selectedDoctor.firstName} ${selectedDoctor.lastName}`,
+            doctorEmail: selectedDoctor.email,
+            doctorSpecialization: selectedDoctor.specialization,
+            dpartmentCode: selectedDoctor.departmentCode,
+            roomNumber:selectedDoctor.roomNumber,
+            price: calculateAppointmentPrice(selectedDoctor.specialization, selectedDoctor.experience),
             date: selectedDate,
-        });
+            departmentCode: selectedDoctor.departmentCode,
+
+        };
+
+        try {
+            const response = await axios.post(
+                'http://localhost:8080/api/appointments/add',
+                bookingDetails,
+                { withCredentials: true }
+            );
+
+            const createdAppointment = response.data;
+            if (createdAppointment==false) {
+                setError('Selected time slot is no longer available. Please choose a different date or doctor.');
+                return;
+            }else{
+            setSuccessMessage('Your booking has been sent successfully.');
+            setError(null);
+            }
+            
+        } catch (submitError) {
+            console.error('Error submitting booking:', submitError);
+            setError('Failed to submit booking. Please try again later.');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
-        <div className="bg-slate-50 min-h-screen flex flex-col">
-            {/* Background Decorative Elements */}
-            <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-linear-to-tr from-blue-100 to-teal-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
+        <ProtectedRoute>
+            <div className="flex flex-col">
+                <Navbar />
+                <div className="min-h-screen bg-slate-100 p-4 sm:p-6 lg:p-8 mt-15">
+                    <div className="max-w-7xl mx-auto">
+                    {/* Header Section */}
+                    <motion.header 
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="mb-8 text-center"
+                    >
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-blue-700 to-indigo-600 mb-3 tracking-tight">
+                            Find your doctor, pick your time, and confirm your session in seconds
+                        </h1>
+                        <p className="text-slate-600 text-lg font-medium">
+                            Complete these steps to confirm your preferred specialist session
+                        </p>
 
-            <Navbar />
+                    </motion.header>
 
-            {/* Header Section */}
-            <header className="py-12 px-6 text-center mt-20">
-                <h1 className="text-4xl md:text-5xl font-black bg-linear-to-r from-cyan-700 to-blue-500 bg-clip-text text-transparent">
-                    Find your doctor, pick your time, and confirm your session in seconds
-                </h1>
-                <p className="text-xl mt-8 font-sans text-cyan-500">
-                    Complete these steps to confirm your preferred specialist session
-                </p>
+                    <main className="px-4 pb-24 mt-10">
+                    {/* Progress Bar Fixes */}
+                    <div className="flex justify-between mb-12 relative">
+                        <div className="absolute  top-1/2 left-0 w-full h-0.5 bg-slate-200 -translate-y-1/2 z-0" />
+                        {[1, 2, 3].map((s) => (
+                            <div
+                                key={s}
+                                className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${step >= s ? "bg-cyan-600 text-white" : "bg-white text-slate-400 border border-slate-200"
+                                    }`}
+                            >
+                                {step > s ? <Check size={20} /> : s}
+                            </div>
+                        ))}
+                    </div>
 
-            </header>
-
-            <main className="max-w-4xl mx-auto px-6 pb-24">
-                {/* Progress Bar Fixes */}
-                <div className="flex justify-between mb-12 relative">
-                    <div className="absolute  top-1/2 left-0 w-full h-0.5 bg-slate-200 -translate-y-1/2 z-0" />
-                    {[1, 2, 3].map((s) => (
-                        <div
-                            key={s}
-                            className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${step >= s ? "bg-cyan-600 text-white" : "bg-white text-slate-400 border border-slate-200"
-                                }`}
-                        >
-                            {step > s ? <Check size={20} /> : s}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="bg-slate-200 border border-slate-300 rounded-3xl p-8 md:p-12 shadow-2xl w-full">
-                     {step === 1 && (
-                        <motion.div
-                            key="step1"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="flex flex-col justify-center items-center"
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-white p-6 md:p-8 w-full overflow-x-hidden">
+                        <AnimatePresence mode="wait">
+                        {step === 1 && (
+                            <motion.div
+                                key="step1"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.5, ease: "easeOut" }}
+                                className="flex flex-col justify-center items-center"
                             >
                                 <h2 className="text-2xl font-bold text-sky-500 mb-8 flex items-center gap-3">
                                     <User size={24} className="inline-block mr-2 text-slate-800" />
-                                     Select Your Doctor
+                                    Select Your Doctor
 
                                 </h2>
                                 <div className="space-y-6">
@@ -192,7 +237,7 @@ export default function Book() {
                                                 setSelectedSpecialization(e.target.value);
                                                 setSelectedDoctor(null);
                                             }}
-                                            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 outline-none"
+                                            className="w-full pl-4 pr-10 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all hover:border-blue-300 bg-white/50 focus:bg-white text-slate-700 appearance-none cursor-pointer"
                                         >
                                             <option value="">Choose a specialization</option>
                                             <option value="Cardiology">Cardiology</option>
@@ -219,7 +264,7 @@ export default function Book() {
                                                             >
                                                                 <div className="flex items-center justify-between gap-3">
                                                                     <div>
-                                                                        <h4 className="font-bold text-lg">{doctor.firstName} {doctor.lastName}</h4>
+                                                                        <h4 className="font-bold text-lg">Dr.{doctor.firstName} {doctor.lastName}</h4>
                                                                         <p className="text-sm text-slate-500">{doctor.specialization}</p>
                                                                     </div>
                                                                     <span className="text-sm font-semibold">View</span>
@@ -249,115 +294,135 @@ export default function Book() {
 
 
 
-                        </motion.div>
-                     )}
-                     
-                    {step === 2 && (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-right-4 duration-500">
-        <div>
-            <h2 className="text-2xl font-bold text-sky-500 mb-6 flex items-center gap-2">
-                <Calendar className="text-cyan-600" /> Pick a Date & Get Number
-            </h2>
-            <p className="text-slate-600 mb-4">
-                Booking with <span className="text-cyan-700 font-bold">Dr. {selectedDoctor?.firstName} {selectedDoctor?.lastName}</span>
-            </p>
-            
-            {/* Displaying Doctor's Schedule */}
-            <div className="bg-cyan-50 p-4 rounded-2xl border border-cyan-100">
-                <p className="text-xs font-bold text-cyan-600 uppercase mb-1">Doctor's Schedule</p>
-                <p className="text-cyan-800 font-medium">
-                    {selectedDoctor?.availability?.join(', ') || 'Consultation schedule pending'}
-                </p>
-            </div>
-            
-            {/* Backend Availability Message */}
-            {availableSlots && typeof availableSlots === 'string' && (
-                <div className="mt-4 p-3 bg-white border-l-4 border-cyan-500 shadow-sm rounded-r-xl">
-                    <p className="text-sm text-slate-700 font-semibold">{availableSlots}</p>
-                </div>
-            )}
-        </div>
+                            </motion.div>
+                        )}
 
-        <div className="space-y-6">
-            <div className="space-y-2">
-                <label className="text-slate-500 text-xs font-bold uppercase tracking-widest">Select Date</label>
-                <input
-                    type="date"
-                    className="w-full bg-white border-2 border-slate-100 p-4 rounded-2xl text-slate-800 outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 transition-all cursor-pointer shadow-sm"
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
-                />
-            </div>
-        </div>
-    </div>
-)}
-                     {step === 3 && (
-                        <motion.div
-                            key="step3"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="flex flex-col justify-center items-center"
-                        >
-                            <h2 className="text-2xl font-bold text-sky-500 mb-8">Confirm Your Booking</h2>
-                            <div className="w-full bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+                        {step === 2 && (
+                            <motion.div 
+                                key="step2"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.5, ease: "easeOut" }}
+                                className="grid grid-cols-1 md:grid-cols-2 gap-8"
+                            >
                                 <div>
-                                    <p className="text-sm text-slate-500">Doctor</p>
-                                    <p className="text-lg font-semibold text-slate-800">
-                                        {selectedDoctor?.firstName} {selectedDoctor?.lastName}
+                                        <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                        <Calendar className="text-blue-600" /> Pick a Date & Get Number
+                                    </h2>
+                                    <p className="text-slate-600 mb-4">
+                                        Booking with <span className="text-cyan-700 font-bold">Dr. {selectedDoctor?.firstName} {selectedDoctor?.lastName}</span>
                                     </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-slate-500">Specialization</p>
-                                    <p className="text-lg font-semibold text-slate-800">
-                                        {selectedDoctor?.specialization}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-slate-500">Date</p>
-                                    <p className="text-lg font-semibold text-slate-800">{selectedDate}</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                     )}
-                              {/* Navigation Buttons */}
-                                <div className="flex justify-between mt-12">
-                                    {error && (
-                                        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
-                                            {error}
+
+                                    {/* Displaying Doctor's Schedule */}
+                                    <div className="bg-cyan-50 p-4 rounded-2xl border border-cyan-100">
+                                        <p className="text-xs font-bold text-cyan-600 uppercase mb-1">Doctor's Schedule</p>
+                                        <p className="text-cyan-800 font-medium">
+                                            {selectedDoctor?.availability?.join(', ') || 'Consultation schedule pending'}
+                                        </p>
+                                    </div>
+
+                                    {/* Backend Availability Message */}
+                                    {availableSlots && typeof availableSlots === 'string' && (
+                                        <div className="mt-4 p-3 bg-white border-l-4 border-cyan-500 shadow-sm rounded-r-xl">
+                                            <p className="text-sm text-slate-700 font-semibold">{availableSlots}</p>
                                         </div>
                                     )}
-                                    <button
-                                        disabled={step === 1}
-                                        onClick={() => setStep(step - 1)}
-                                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${step === 1 ? "opacity-0 pointer-events-none" : "hover:bg-blue-600 text-slate-700 hover:text-slate-100"
-                                            }`}
-                                    >
-                                        <ChevronLeft size={20} /> Back
-                                    </button>
-
-                                    <button
-                                        disabled={(step === 1 && !selectedDoctor) || (step === 2 && (!selectedDate))}
-                                        onClick={() => {
-                                            if (step === 3) {
-                                                handleSubmit();
-                                            } else {
-                                                setStep(step + 1);
-                                            }
-                                        }}
-                                        className="flex items-center gap-2 px-10 py-3 bg-linear-to-r from-cyan-500 to-blue-500 rounded-xl font-bold text-white hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
-                                    >
-                                        {step === 3 ? "Confirm Booking" : "Next Step"} <ChevronRight size={20} />
-                                    </button>
                                 </div>
+
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-slate-500 text-xs font-bold uppercase tracking-widest">Select Date</label>
+                                        <input
+                                            type="date"
+                                            className="w-full bg-white border-2 border-slate-100 p-4 rounded-2xl text-slate-800 outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 transition-all cursor-pointer shadow-sm"
+                                            onChange={(e) => setSelectedDate(e.target.value)}
+                                            min={new Date().toISOString().split("T")[0]}
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                        {step === 3 && (
+                            <motion.div
+                                key="step3"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.5, ease: "easeOut" }}
+                                className="flex flex-col justify-center items-center"
+                            >
+                                <h2 className="text-2xl font-bold text-slate-800 mb-8">Confirm Your Booking</h2>
+                                <div className="w-full bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+                                    <div>
+                                        <p className="text-sm text-slate-500">Doctor</p>
+                                        <p className="text-lg font-semibold text-slate-800">
+                                            {selectedDoctor?.firstName} {selectedDoctor?.lastName}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-slate-500">Specialization</p>
+                                        <p className="text-lg font-semibold text-slate-800">
+                                            {selectedDoctor?.specialization}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-slate-500">Date</p>
+                                        <p className="text-lg font-semibold text-slate-800">{selectedDate}</p>
+                                    </div>
+                                </div>
+
+                            </motion.div>
+                        )}
+                        </AnimatePresence>
+                        {/* Navigation Buttons */}
+                        <div className="flex flex-col gap-4 mt-12">
+                            {error && (
+                                <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+                                    {error}
+                                </div>
+                            )}
+                            {successMessage && (
+                                <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-sm text-emerald-700">
+                                    {successMessage}
+                                </div>
+                            )}
+                            <div className="flex justify-between">
+                                <button
+                                    disabled={step === 1}
+                                    onClick={() => setStep(step - 1)}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${step === 1 ? "opacity-0 pointer-events-none" : "hover:bg-blue-600 text-slate-700 hover:text-slate-100"
+                                        }`}
+                                >
+                                    <ChevronLeft size={20} /> Back
+                                </button>
+
+                                        <button
+                                    disabled={submitting || (step === 1 && !selectedDoctor) || (step === 2 && (!selectedDate))}
+                                    onClick={() => {
+                                        if (step === 3) {
+                                            handleSubmit();
+                                        } else {
+                                            setStep(step + 1);
+                                        }
+                                    }}
+                                            className="flex items-center gap-2 px-10 py-3 bg-linear-to-r from-blue-600 to-indigo-600 rounded-xl font-bold text-white hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                                >
+                                    {step === 3 ? (submitting ? 'Sending...' : 'Confirm Booking') : 'Next Step'} <ChevronRight size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
 
                 </div>
 
-            </main>
+            </div>
 
+            </div>
 
-
-
-       </div>
+        </ProtectedRoute>
+        
     );
 }
