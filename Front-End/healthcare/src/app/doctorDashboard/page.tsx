@@ -226,7 +226,7 @@ export default function DoctorDashboard() {
             console.error("Failed executing status pipeline change:", err);
             alert("Error altering verification target states records.");
         } finally {
-            幕ActionLoading(false);
+            setActionLoading(false);
         }
     };
 
