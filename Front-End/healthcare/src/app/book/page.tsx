@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRouter';
 import { select } from 'framer-motion/client';
+import { useRouter } from 'next/navigation';
 
 interface Doctors {
     firstName: string;
@@ -53,6 +54,7 @@ export default function Book() {
     const [selectedDate, setSelectedDate] = useState<string>('');
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
     const { user } = useAuth();
+    const router = useRouter();
     
 
     const calculateAppointmentPrice = (specialization: string, experience: string | number): number => {
@@ -162,6 +164,7 @@ export default function Book() {
             setSuccessMessage('Your booking has been sent successfully.');
             setError(null);
             }
+            router.push("/patientDashboard");
             
         } catch (submitError) {
             console.error('Error submitting booking:', submitError);

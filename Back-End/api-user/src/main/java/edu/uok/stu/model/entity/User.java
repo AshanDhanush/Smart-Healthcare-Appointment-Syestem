@@ -1,5 +1,6 @@
 package edu.uok.stu.model.entity;
 
+import edu.uok.stu.model.dto.ShiftDto;
 import edu.uok.stu.util.Gender;
 import edu.uok.stu.util.Role;
 import lombok.AllArgsConstructor;
@@ -39,7 +40,7 @@ public class User implements UserDetails {
     private LocalDate createdDate;
     private LocalDateTime createdTime;
     private String specialization;
-    private String availability;
+    private List<ShiftDto> availability;
     private String roomNumber;
     private String experience;
 

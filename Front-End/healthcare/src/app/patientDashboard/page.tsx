@@ -144,19 +144,29 @@ export default function PatientDashboardPage() {
         setProfileForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const deleteAppointment = async (appointmentNumber: number , date: Date) => {
+    const deleteAppointment = async (appointmentNumber: number , date: Date , doctorEmail: string) => {
         setLoading(true);
         setError(null);
         try {
-           await axios.delete(
-    `http://localhost:8080/api/appointments/delete?appointmentNumber=${appointmentNumber}&date=${date.toISOString().split('T')[0]}`,
-    { withCredentials: true }
-);
+            const res = await axios.delete(
+                `http://localhost:8080/api/appointments/delete`,
+                {
+                    data: {
+                        doctorEmail,
+                        date: date.toISOString().split('T')[0],
+                        appointmentNumber                          
+                    },
+                    withCredentials: true
+                }
+            );
+            if (res.data === false) {
+                throw new Error("Appointment not found or could not be deleted.");
+            }
             setError(null);
             setCancle(prev => !prev); // Trigger refetch after successful deletion
 
-        } catch (err) {
-            setError("Failed to cancel appointment. Please try again later.");
+        } catch (err: any) {
+            setError(err.response?.data || err.message || "Failed to cancel appointment. Please try again later.");
         } finally {
             setLoading(false);
         }
@@ -251,8 +261,8 @@ export default function PatientDashboardPage() {
                         </h2>
                         
                         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                            {appointments.map((apt) => (
-                                <div key={apt.number} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+                            {appointments.map((apt, index) => (
+                                <div key={`${apt.number}-${apt.doctorEmail}-${index}`} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
                                     <div className={`absolute top-0 left-0 w-1.5 h-full transition-colors ${apt.status === "PENDING" ? "bg-blue-500 group-hover:bg-blue-600" : "bg-emerald-500 group-hover:bg-emerald-600"}`} />
                                     
                                     <div className="flex justify-between items-start mb-5 pl-2">
@@ -289,7 +299,7 @@ export default function PatientDashboardPage() {
                                         <div className="mt-6 flex gap-3 ml-2">
                                             <button className="flex-1 bg-rose-50 border-2 border-transparent text-rose-600 py-2.5 rounded-xl font-bold hover:bg-rose-100 transition-colors"
                                                 onClick={() => {
-                                                    deleteAppointment(apt.number, new Date(apt.date));
+                                                    deleteAppointment(apt.number, new Date(apt.date), apt.doctorEmail);
                                                 }}
                                             >
                                                 Cancel

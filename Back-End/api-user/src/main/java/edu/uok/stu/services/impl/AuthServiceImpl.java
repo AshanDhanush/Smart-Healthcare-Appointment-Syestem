@@ -82,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
                 .user(userDto)
                 .build();
     }
+
     @Override
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
@@ -111,6 +112,11 @@ public class AuthServiceImpl implements AuthService {
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .role(user.getRole())
+                .specialization(user.getSpecialization())
+                .departmentCode(user.getDepartmentCode())
+                .roomNumber(user.getRoomNumber())
+                .experience(user.getExperience())
+                .availability(user.getAvailability())
                 .build();
 
 
@@ -144,9 +150,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean updateProfile(String email, UpdateProfile updateProfile) {
         var userOptional = userRepository.findByEmail(email);
+        System.out.println(updateProfile.getAvailability()); // [Monday, Tuesday, Wednesday] printing correctly!
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
+
+            // Base Profile Updates
             if (updateProfile.getFirstName() != null && !updateProfile.getFirstName().isBlank()) {
                 user.setFirstName(updateProfile.getFirstName());
             }
@@ -165,7 +174,9 @@ public class AuthServiceImpl implements AuthService {
             if (updateProfile.getDateOfBirth() != null) {
                 user.setDateOfBirth(updateProfile.getDateOfBirth());
             }
-            if (user.getRole() == edu.uok.stu.util.Role.DOCTOR) {
+
+            // Doctor Specific Profile Updates
+            if (user.getRole() == Role.DOCTOR) {
                 if (updateProfile.getSpecialization() != null && !updateProfile.getSpecialization().isBlank()) {
                     user.setSpecialization(updateProfile.getSpecialization());
                 }
@@ -174,15 +185,17 @@ public class AuthServiceImpl implements AuthService {
                 }
                 if (updateProfile.getRoomNumber() != null && !updateProfile.getRoomNumber().isBlank()) {
                     user.setRoomNumber(updateProfile.getRoomNumber());
-                }
-                if (updateProfile.getAvailability() != null && !updateProfile.getAvailability().isBlank()) {
+                } // FIXED: Closed the roomNumber check correctly here!
+
+                // FIXED: These now execute independently of roomNumber
+                if (updateProfile.getAvailability() != null && !updateProfile.getAvailability().isEmpty()) {
                     user.setAvailability(updateProfile.getAvailability());
                 }
+
                 if (updateProfile.getExperience() != null && !updateProfile.getExperience().isBlank()) {
-                    user.setExperience(updateProfile.getExperience());
+                    user.setExperience(updateProfile.getExperience().trim());
                 }
             }
-
 
             userRepository.save(user);
             return true;
@@ -190,6 +203,4 @@ public class AuthServiceImpl implements AuthService {
 
         return false;
     }
-
-
 }

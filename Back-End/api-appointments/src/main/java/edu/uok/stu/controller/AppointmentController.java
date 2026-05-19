@@ -1,8 +1,11 @@
 package edu.uok.stu.controller;
 
+import edu.uok.stu.model.dto.AppointmentDeleteDto;
 import edu.uok.stu.model.dto.AppointmentsDto;
 import edu.uok.stu.model.dto.AppointmentsTrendDto;
+import edu.uok.stu.model.dto.UpdateApointementDto;
 import edu.uok.stu.service.AppointmentService;
+import edu.uok.stu.util.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -44,8 +47,10 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?>  deleteAppointment(@RequestParam("appointmentNumber") int appointmentNumber , @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
-        return ResponseEntity.ok(appointmentService.deleteAppointment(appointmentNumber,date));
+    public ResponseEntity<?>  deleteAppointment(
+            @RequestBody AppointmentDeleteDto appointmentDeleteDto
+            ){
+        return ResponseEntity.ok(appointmentService.deleteAppointment(appointmentDeleteDto));
     }
 
     @GetMapping("/get/appointment/amount")
@@ -56,6 +61,13 @@ public class AppointmentController {
     @GetMapping("/admin/analytics/trends")
     public ResponseEntity<List<AppointmentsTrendDto>> getVolumeTrends() {
         return ResponseEntity.ok(appointmentService.getAppointmentVolumeTrends());
+    }
+
+    @PutMapping("/update/status")
+    public boolean updateStatus(
+            @RequestBody UpdateApointementDto updateApointementDto
+            ){
+        return appointmentService.updateStatus(updateApointementDto);
     }
 
 

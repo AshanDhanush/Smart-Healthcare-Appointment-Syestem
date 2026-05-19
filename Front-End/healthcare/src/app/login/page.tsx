@@ -38,7 +38,7 @@ export default function Login() {
                 console.log("Patient logged in", user.name);
             }
             else if (user.role === 'DOCTOR') {
-                router.push("/doctor");
+                router.push("/doctorDashboard");
                 console.log("Doctor logged in", user.name);
             }else if (user.role === 'ADMIN') {
                 router.push("/adminDashboard");

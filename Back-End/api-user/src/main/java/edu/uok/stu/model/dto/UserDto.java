@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,7 +27,7 @@ public class UserDto {
     private Role role;
     private String departmentCode;
     private String specialization;
-    private String availability;
+    private List<ShiftDto> availability;
     private String roomNumber;
     private String experience;
 }

@@ -13,15 +13,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 
-public class NotificationEvent {
-    private String toUser;
-    private String subject;
-    private String body;
-    private String attachmentName;
-    private byte[] attachmentData;
+public class UpdateApointementDto {
+
+    private String patientEmail;
+    private String doctorEmail;
+    private Status status;
     private int appointmentNumber;
     private LocalDate date;
-    private Status status;
-
 
 }

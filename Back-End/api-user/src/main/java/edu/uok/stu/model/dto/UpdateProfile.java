@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,6 +25,6 @@ public class UpdateProfile {
     private String specialization;
     private String departmentCode;
     private String roomNumber;
-    private String availability;
+    private List<ShiftDto> availability;
     private String experience;
 }

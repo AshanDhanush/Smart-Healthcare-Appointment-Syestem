@@ -457,39 +457,63 @@ export default function AdminDashboardPage() {
         }
     };
 
-    const deleteAppointment = async (appointmentNumber: number , date: Date) => {
-        if (!confirm("Are you sure you want to cancel this appointment?")) return;
-        setLoading(true);
-        setErrors("");
-        try {
-            await axios.delete(
-                `http://localhost:8080/api/appointments/delete?appointmentNumber=${appointmentNumber}&date=${date.toISOString().split('T')[0]}`,
-                {
-                    withCredentials: true
-                }
-            );
-            fetchAppointments();
-        } catch (err) {
-            setErrors("Failed to cancel appointment. Please try again later.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const deleteAppointment = async (appointmentNumber: number, dateStr: string | Date, doctorEmail: string) => {
+    if (!confirm("Are you sure you want to permanently delete this appointment record?")) return;
+    
+    setLoading(true);
+    setErrors("");
+    try {
+        // Convert date safely to YYYY-MM-DD format without zone shifting issues
+        const formattedDate = new Date(dateStr).toISOString().split('T')[0];
+        
+        // Target port 8084 directly where the appointment microservice processes deletions
+        const res = await axios.delete(`http://localhost:8080/api/appointments/delete`, {
+            data: {
+                doctorEmail,
+                date: formattedDate,
+                appointmentNumber // Transmits field with the correct variable signature
+            },
+            withCredentials: true
+        });
 
-    const handleStatusChange = async (appointmentNumber: number, date: Date, status: string) => {
+        // Handle fallback responses gracefully based on your backend response entities
+        if (res.data === false) {
+            throw new Error("Appointment not found or could not be verified for deletion.");
+        }
+        
+        alert("Appointment successfully canceled and removed.");
+        fetchAppointments(); // Re-trigger tracking fetch to update UI state table
+    } catch (err: any) {
+        console.error("Deletion execution failure:", err);
+        setErrors(err.response?.data?.message || err.message || "Failed to cancel appointment. Please try again later.");
+    } finally {
+        setLoading(false);
+    }
+};
+
+    const handleStatusChange = async (appointmentNumber: number, date: Date, status: string, patientEmail: string, doctorEmail: string) => {
         setLoading(true);
         setErrors("");
         try {
-            await axios.put(
-                `http://localhost:8080/api/appointments/update/status?appointmentNumber=${appointmentNumber}&date=${date.toISOString().split('T')[0]}&status=${status}`,
-                {},
+            const res = await axios.put(
+                `http://localhost:8080/api/appointments/update/status`,
+                {
+                    patientEmail,
+                    doctorEmail,
+                    status,
+                    appointmentNumber,
+                    date: date.toISOString().split('T')[0]
+                },
                 {
                     withCredentials: true
                 }
             );
-            fetchAppointments();
-        } catch (err) {
-            setErrors("Failed to update appointment status. Please try again later.");
+            if (res.data === false) {
+                throw new Error("Appointment not found or status could not be updated.");
+            }
+            fetchAppointments();  
+        } catch (err: any) {
+            setErrors(err.response?.data || err.message || "Failed to update appointment status. Please try again later.");
         } finally {
             setLoading(false);
         }
@@ -509,7 +533,7 @@ export default function AdminDashboardPage() {
                         <Bell size={20} className="text-black mt-0 ml-auto" />
                         <div className="ml-4 flex flex-row items-center hover:bg-slate-300 rounded-lg px-3 py-2 transition cursor-pointer">
                             <User className="text-black " />
-                            <span className="text-slate-100 ml-2">Ashan Dhanushka</span>
+                            <span className="text-slate-100 ml-2">{`${user.firstName} ${user.lastName}}`}</span>
                         </div>
                     </header>
                     {currentTab === "dashboard" && (
@@ -626,7 +650,7 @@ export default function AdminDashboardPage() {
                                                         <td className="p-4 text-slate-300 text-sm">
                                                             <select
                                                                 value={a.status}
-                                                                onChange={(e) => handleStatusChange(a.number, new Date(a.date), e.target.value)}
+                                                                onChange={(e) => handleStatusChange(a.number, new Date(a.date), e.target.value, a.patientEmail, a.doctorEmail)}
                                                                 className={`px-2 py-1 rounded text-xs font-bold outline-none border border-slate-600 cursor-pointer ${
                                                                     a.status === 'PENDING' ? 'bg-amber-500/20 text-amber-500' :
                                                                     a.status === 'CONFIRMED' ? 'bg-sky-500/20 text-sky-500' :
@@ -641,7 +665,7 @@ export default function AdminDashboardPage() {
                                                         <td className="p-4 text-center">
                                                             <button
                                                                 onClick={() => {
-                                                                    deleteAppointment(a.number, new Date(a.date));
+                                                                  deleteAppointment(a.number, a.date, a.doctorEmail);
                                                                 }}
                                                                 className="px-4 py-1.5 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white text-xs font-bold rounded-lg transition-all border border-rose-500/30"
                                                             >
