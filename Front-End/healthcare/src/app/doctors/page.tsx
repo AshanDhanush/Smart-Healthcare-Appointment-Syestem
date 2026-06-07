@@ -31,6 +31,7 @@ export default function DoctorSearchPage() {
     const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
+    const [symptomInput, setSymptomInput] = useState<string>("");
 
     // --- BACKEND SERVICE SYNC DATA ---
     const fetchDoctorsList = useCallback(async () => {
@@ -90,6 +91,30 @@ export default function DoctorSearchPage() {
         
         return "Not Specified";
     };
+
+    useEffect(() => {
+        if (symptomInput.trim() === "") return;
+
+        const fetchSymptomBasedDoctors = async () => {
+            setLoading(true);
+            setError("");
+            const symptomQuery = symptomInput.trim();
+            try {
+                const response = await axios.post(`http://localhost:8090/api/ai/predict-specialty`, { symptoms: symptomQuery });
+    
+                const predictedSpecialty = response.data.recommended_specialty;
+                setSelectedSpecialization(predictedSpecialty);
+            } catch (err) {
+                console.error("Failed to fetch symptom-based doctor predictions:", err);
+                setError("Unable to get personalized recommendations at the moment. Please try again later.");
+            } finally {
+                setLoading(false);
+            }   
+        };
+
+        fetchSymptomBasedDoctors();
+    }, [symptomInput]);
+
 
     return (
         <div className="flex flex-col">
@@ -160,7 +185,22 @@ export default function DoctorSearchPage() {
                                 </select>
                             </div>
                         </div>
+
+                        {/* doctor prediction prompt */}
+                        <div className="mt-4 text-sm text-slate-500 italic">
+                            Tip: Try searching for "Enter your symptoms" to get personalized doctor recommendations.
+                        </div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2 group-focus-within:text-blue-600 transition-colors">Enter your symptoms</label>
+                        <input
+                                        type="text"
+                                        placeholder="Your symptoms, e.g. 'chest pain and shortness of breath'"
+                                        value={symptomInput}
+                                        onChange={(e) => setSymptomInput(e.target.value)}
+                                        className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all hover:border-blue-300 bg-white/50 focus:bg-white text-slate-700 placeholder-slate-400"
+                                    />
                     </div>
+
+
 
                     {/* Results Count & Loader Notification View */}
                     <div className="mb-5 flex items-center justify-between">

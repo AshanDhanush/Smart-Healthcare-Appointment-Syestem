@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b6cdc05f-7817-4e60-b7a0-4e3c8103b8a4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/api-appointments/src/main/java/edu/uok/stu/controller/AppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-appointments/src/main/java/edu/uok/stu/controller/AppointmentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/edu/uok/stu/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/edu/uok/stu/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/controller/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/controller/AdminController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/dto/RegisterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/dto/RegisterRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/dto/UserDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/model/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/services/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/services/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/services/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-user/src/main/java/edu/uok/stu/services/impl/AuthServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Front-End/healthcare/src/app/adminDashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Front-End/healthcare/src/app/adminDashboard/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Front-End/healthcare/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Front-End/healthcare/src/app/login/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Front-End/healthcare/src/app/doctors/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Front-End/healthcare/src/app/doctors/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,11 +39,13 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Docker.resources: Compose Deployment.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -66,8 +59,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.24374.151" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.24374.151" />
       </set>
     </attachedChunks>
   </component>

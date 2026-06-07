@@ -533,7 +533,7 @@ export default function AdminDashboardPage() {
                         <Bell size={20} className="text-black mt-0 ml-auto" />
                         <div className="ml-4 flex flex-row items-center hover:bg-slate-300 rounded-lg px-3 py-2 transition cursor-pointer">
                             <User className="text-black " />
-                            <span className="text-slate-100 ml-2">{`${user.firstName} ${user.lastName}}`}</span>
+                            <span className="text-slate-100 ml-2">{user ? `${user.firstName} ${user.lastName}` : "Admin"}</span>
                         </div>
                     </header>
                     {currentTab === "dashboard" && (
@@ -834,11 +834,16 @@ export default function AdminDashboardPage() {
                                                         </td>
                                                         <td className="p-4 text-slate-300">
                                                             <div className="flex flex-wrap gap-1">
-                                                                {doc.availability?.map((day, dIdx) => (
-                                                                    <span key={dIdx} className="text-[10px] bg-slate-900 px-1.5 py-0.5 rounded border border-slate-600">
-                                                                        {day}
-                                                                    </span>
-                                                                ))}
+                                                                {doc.availability?.map((shift, dIdx) => {
+                                                                    const shiftText = typeof shift === 'object' && shift !== null
+                                                                        ? `${shift.day?.substring(0, 3)} ${shift.startTime}-${shift.endTime}`
+                                                                        : shift;
+                                                                    return (
+                                                                        <span key={dIdx} className="text-[10px] bg-slate-900 px-1.5 py-0.5 rounded border border-slate-600">
+                                                                            {shiftText}
+                                                                        </span>
+                                                                    );
+                                                                })}
                                                             </div>
                                                         </td>
                                                         <td className="p-4 text-slate-300 font-mono text-sm">
@@ -1340,11 +1345,16 @@ export default function AdminDashboardPage() {
                                     <div>
                                         <p className="text-slate-400 text-xs uppercase font-semibold">Weekly Availability</p>
                                         <div className="flex flex-wrap gap-2 mt-1">
-                                            {selectedDoctor.availability?.map((day, i) => (
-                                                <span key={i} className="px-2 py-1 bg-slate-900 text-cyan-400 text-[10px] font-bold rounded border border-slate-700 uppercase">
-                                                    {day}
-                                                </span>
-                                            ))}
+                                            {selectedDoctor.availability?.map((shift, i) => {
+                                                const shiftText = typeof shift === 'object' && shift !== null
+                                                    ? `${shift.day?.substring(0, 3)} ${shift.startTime}-${shift.endTime}`
+                                                    : shift;
+                                                return (
+                                                    <span key={i} className="px-2 py-1 bg-slate-900 text-cyan-400 text-[10px] font-bold rounded border border-slate-700 uppercase">
+                                                        {shiftText}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </div>
